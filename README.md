@@ -1,136 +1,207 @@
-# King County Housing EDA Project Template
+# King County Housing EDA
 
-This is the starter template for the Exploratory Data Analysis (EDA) project. You will work with the King County housing dataset (home sales in and around Seattle, USA), uncover what drives house prices, and turn your findings into insights and recommendations for a client you choose.
+## Project Overview
 
-## Learning Objectives
+This project presents an Exploratory Data Analysis (EDA) of the King County housing market in and around Seattle, Washington.
 
-By the end of this repository, you should be able to:
-
-- Connect to a PostgreSQL database from Python and load query results into a pandas DataFrame.
-- Frame an exploratory data analysis around clear research questions and hypotheses.
-- Clean and wrangle a real-world dataset by handling missing values, outliers, and feature transformations.
-- Explore distributions and the relationships between features and the target variable (price).
-- Translate your analysis into at least three insights and three client-specific recommendations.
-- Present your work to a non-technical audience.
-
-## Learning Path
-
-Work through the files in order. Start with the assignment to understand the goal, follow the workflow as your guide, fetch the data, then run your analysis in the EDA notebook.
-
-> [!TIP]
-> The data lives in the **eda** schema of the database and is split across two tables. Before fetching anything in code, connect with DBeaver and explore that schema: inspect both tables, check [**Column Names**](column_names.md) for what each field means, and work out how to join them. Once you have a working `JOIN`, use it as the query in [**03 - Fetching the Data**](03_fetching_the_data_eda.ipynb) to load the combined dataset into pandas.
-
-| File / Folder                                                   | Description                                                                                                              |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| [**01 - Assignment**](01_assignment.md)                      | The project brief: the dataset, your tasks, deliverables, and the list of clients to choose from.                        |
-| [**02 - Workflow**](02_workflow.md)                          | A recommended EDA workflow, from understanding and questioning the data through cleaning, relationships, and presenting. |
-| [**03 - Fetching the Data**](03_fetching_the_data_eda.ipynb) | Connect to the PostgreSQL database with psycopg2 and SQLAlchemy, then pull the data into a pandas DataFrame.             |
-| [**04 - EDA**](04_eda.ipynb)                                 | Starter notebook for your exploratory data analysis.                                                                     |
-| [**Column Names**](column_names.md)                          | Data dictionary describing each column in the King County housing dataset.                                               |
-
-### Additional Folders and Files
-
-| File / Folder                           | Description                                                                                    |
-| --------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| [**Data**](data/)                    | Where you save the dataset CSV. The folder is tracked, but its data files are kept out of git. |
-| [**.env.example**](.env.example)     | Template for the database credentials. Copy it to `.env` and fill in your values.            |
-| [**pyproject.toml**](pyproject.toml) | Project configuration and dependencies.                                                        |
-| [**uv.lock**](uv.lock)               | Dependency lock file.                                                                          |
-
-## Setup
-
-> [!NOTE]
-> Throughout these steps, text in angle brackets like `<repo-name>` is a **placeholder**. Replace it, including the `< >` brackets, with your own value. For example, `cd <repo-name>` becomes `cd ds-eda-project-template`.
-
-### 1. Create the Repository from the Template
-
-Click **Use this template** on GitHub.
-
-When creating the repository:
-
-- Set yourself as the **Owner**
-- Choose a repository name
-- Disable **Include all branches**
-- Click **Create repository**
-
-> [!IMPORTANT]
-> If you are working in pairs or groups, only **one person** should complete this step.
----
-
-### 2. Add Collaborators (Pairs/Groups Only)
-
-If working with teammates:
-
-1. Open the repository on GitHub
-2. Go to **Settings → Collaborators**
-3. Add your teammates as collaborators
-4. Share the repository link with your team
-
-Teammates should accept the invitation before continuing.
+The objective is to transform housing sales data into practical insights and recommendations for a specific client.
 
 ---
 
-### 3. Clone the Repository
+## Client – Nicole Johnson
 
-Copy the SSH URL from the **Code** button on GitHub, then run:
+Nicole is looking to buy a house in the Seattle area.
 
-```bash
-git clone <copied-ssh-url>
-```
+Her main priorities are:
 
-The copied SSH URL will look like `git@github.com:<your-username>/<repo-name>.git`.
+- A relatively central location
+- A middle price range
+- A good balance between living space and affordability
+- Flexibility regarding the timing of the purchase
 
----
+The main goal of the analysis is therefore to answer:
 
-### 4. Move into the Project Folder and Install Dependencies
-
-This installs all dependencies and creates a virtual environment in `.venv/`.
-
-```bash
-cd <repo-name>
-uv sync
-```
-
-> [!TIP]
-> Need a library that is not installed yet (for example a mapping)? Add it with `uv add <package-name>`. This updates `pyproject.toml` and `uv.lock` and installs it into your `.venv`. Commit both files; teammates then run uv sync after pulling to get the same environment.
+**Where, when, and what size of house should Nicole consider?**
 
 ---
 
-### 5. Set up your Database Credentials
+## Dataset
 
-The data-fetching notebook reads the database connection details from a `.env` file. Copy the template and fill in your own values:
+The analysis is based on the King County Housing dataset.
 
-```bash
-cp .env.example .env
-```
+The dataset contains:
 
-Open `.env` and replace the placeholders with the credentials for the King County housing database (the same ones you use in DBeaver). These values feed [**03 - Fetching the Data**](03_fetching_the_data_eda.ipynb).
+- **21,597 house sales**
+- Sales from **May 2014 to May 2015**
+- Property and location information for houses in King County
 
-> [!CAUTION]
-> `.env` holds secrets and must never be committed. It is already listed in `.gitignore`. Only `.env.example`, with placeholder values, belongs in the repository.
+The main variables used in the analysis include:
+
+- `price` – sale price
+- `date` – sale date
+- `sqft_living` – living space
+- `zipcode` – ZIP code
+- `lat` – latitude
+- `long` – longitude
+
+The original data was stored in two PostgreSQL tables and combined using an SQL JOIN.
 
 ---
 
-### 6. Open the Notebooks
+## Assumptions
 
-> [!NOTE]
-> Make sure you open VS Code from the project root so it automatically detects the environment created by uv sync.
+Some of Nicole's requirements are not directly defined in the dataset. Therefore, the following analytical assumptions were used.
 
-Launch VS Code in the project root folder:
+### Middle Price Range
 
-```bash
-code .
-```
+The middle price range is defined as the middle 50% of house prices:
 
-Then open a notebook and select the Python environment created by `uv sync` as the kernel.
+**$322,000 – $645,000**
 
-## References & Further Reading
+This corresponds to the 25th and 75th percentiles of the price distribution.
 
-- [**House Sales in King County dataset**](https://www.kaggle.com/datasets/harlfoxem/housesalesprediction): The source dataset, with column descriptions and community notebooks.
-- [**Pandas user guide**](https://pandas.pydata.org/docs/user_guide/index.html): The official guide to data manipulation with pandas.
-- [**Seaborn tutorial**](https://seaborn.pydata.org/tutorial.html): Statistical data visualization in Python.
-- [**SQLAlchemy documentation**](https://docs.sqlalchemy.org/en/20/): The database toolkit used to query PostgreSQL from Python.
-- [**Hypothesis generation for EDA**](https://www.analyticsvidhya.com/blog/2020/11/an-efficient-way-of-performing-eda-hypothesis-generation/): How to form research questions and hypotheses before diving into the data.
-- [**EDA Checklist**](https://github.com/neuefische/datascience-infographics/blob/main/EDA_Checklist.md): A phase-by-phase checklist for working through an exploratory analysis.
-- [**Detailed EDA with Python**](https://www.kaggle.com/code/ekami66/detailed-exploratory-data-analysis-with-python): A worked example of a thorough EDA notebook on real data.
-- [**Tips for data science presentations**](https://www.dataknowsall.com/storytelling.html): Storytelling techniques for presenting results to a non-technical audience.
+### Central Location
+
+Central Seattle was used as the geographical reference point.
+
+For the client-specific analysis, properties within **15 km of Central Seattle** were considered relatively central.
+
+### Lively Neighborhood
+
+The dataset does not directly measure whether a neighborhood is lively.
+
+Therefore, this requirement cannot be directly tested with the available data.
+
+---
+
+## Hypotheses
+
+### H1 – Location
+
+**Houses located closer to Central Seattle tend to be more expensive than houses farther away from the city center.**
+
+### H2 – Timing
+
+**House prices vary depending on the time of year, which may create better buying opportunities in certain months.**
+
+### H3 – Size vs. Affordability
+
+**Smaller houses in central locations are more likely to fall within the middle price range than larger houses in the same area.**
+
+---
+
+## Exploratory Data Analysis
+
+The analysis included:
+
+- Inspection of the dataset structure
+- Data type validation
+- Missing-value analysis
+- Duplicate checks
+- Identification of potential outliers
+- Date conversion and feature engineering
+- Definition of the middle price range
+- Calculation of distance from Central Seattle
+- Correlation analysis
+- Grouped price comparisons
+- Client-specific filtering
+- Data visualization
+
+---
+
+## Key Findings
+
+### H1 – Location
+
+House prices generally decrease as distance from Central Seattle increases.
+
+The median house price was approximately:
+
+- **$638k** within 0–5 km
+- **$537k** within 5–10 km
+- **$467k** within 10–15 km
+- **$310k** beyond 30 km
+
+The **5–15 km range** provides an interesting balance between proximity to Central Seattle and affordability.
+
+---
+
+### H2 – Timing
+
+House prices and the number of available properties vary throughout the year.
+
+For Nicole's relevant market segment — properties within 15 km of Central Seattle and within the target price range:
+
+- **November** had the lowest observed median price at approximately **$453,000**
+- **May** had the largest selection with **569 suitable properties**
+
+This indicates a trade-off between price and choice.
+
+---
+
+### H3 – Size vs. Affordability
+
+Living space and house price show a strong positive correlation:
+
+**Correlation = 0.793**
+
+For central properties, the share of houses within Nicole's target price range was:
+
+| Living Space | Share Within Target Price Range |
+|---|---:|
+| ≤ 1,500 sqft | 63.6% |
+| 1,501–2,000 sqft | 67.1% |
+| 2,001–2,500 sqft | 47.3% |
+| > 2,500 sqft | 14.8% |
+
+Homes between **1,501 and 2,000 sqft** provide a particularly strong balance between living space and the target price range.
+
+---
+
+## Recommendations for Nicole
+
+Based on the analysis:
+
+1. **Location:** Focus primarily on properties within **5–15 km of Central Seattle** to balance centrality and affordability.
+
+2. **Timing:** If price is the main priority, pay particular attention to late-year opportunities such as **November**. If having more properties to choose from is more important, **May** may offer a larger selection.
+
+3. **Living Space:** Prioritize homes around **1,500–2,000 sqft**, where the largest share of central properties falls within the target price range.
+
+The overall recommendation is to consider **location, timing, living space, and price together** rather than optimizing only one factor.
+
+---
+
+## Tools & Technologies
+
+- Python
+- pandas
+- NumPy
+- Matplotlib
+- PostgreSQL
+- SQLAlchemy
+- Jupyter Notebook
+- VS Code
+- Git & GitHub
+
+---
+
+## Repository Structure
+
+| File / Folder | Description |
+|---|---|
+| `01_assignment.md` | Original project assignment |
+| `02_workflow.md` | Recommended EDA workflow |
+| `03_fetching_the_data_eda.ipynb` | Data extraction and SQL JOIN |
+| `04_eda.ipynb` | Main exploratory data analysis |
+| `column_names.md` | Data dictionary |
+| `data/` | Local data directory |
+| `README.md` | Project documentation |
+
+---
+
+## Author
+
+**Mohamed Elbadry**
+
+Data Science & AI – Exploratory Data Analysis Project
